@@ -1,55 +1,67 @@
+import os
 import pandas as pd
 import numpy as np
-from scipy import stats
-import os
+SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-RAW_FILE = "src/data/raw/dataset.csv"
-PROCESSED_FILE = "src/data/processed/final.csv"
-
+RAW_DATA_PATH = os.path.join(SRC_DIR, "data", "raw", "dataset.csv")
+PROCESSED_DATA_DIR = os.path.join(SRC_DIR, "data", "processed")
+OUTPUT_PATH = os.path.join(PROCESSED_DATA_DIR, "final.csv")
 
 def load_data():
-    print("Step 1: Loading dataset")
-    df = pd.read_csv(RAW_FILE)
+    if not os.path.exists(RAW_DATA_PATH):
+        raise FileNotFoundError("train.csv not found in data/raw")
+
+    df = pd.read_csv(RAW_DATA_PATH)
+    print(f"Data loaded with shape: {df.shape}")
     return df
 
+def handle_missing_values(df):
+    # Numerical columns
+    df["Age"].fillna(df["Age"].median(), inplace=True)
+    df["Fare"].fillna(df["Fare"].median(), inplace=True)
+    # Categorical columns
+    df["Embarked"].fillna(df["Embarked"].mode()[0], inplace=True)
+    # Drop Cabin (too many missing values)
+    if "Cabin" in df.columns:
+        df.drop(columns=["Cabin"], inplace=True)
 
-def clean_data(df):
-    print("Step 2: Cleaning dataset")
+    return df
 
-    # Remove duplicate rows
+def remove_duplicates(df):
+    before = df.shape[0]
     df = df.drop_duplicates()
+    after = df.shape[0]
+    print(f"Duplicates removed: {before - after}")
+    return df
 
-    # Fill missing values
-    for column in df.columns:
-        if df[column].dtype == "int64" or df[column].dtype == "float64":
-            df[column] = df[column].fillna(df[column].median())
-        else:
-            df[column] = df[column].fillna(df[column].mode()[0])
 
-    # Remove outliers using Z-score (only numeric columns)
-    numeric_columns = df.select_dtypes(include=["int64", "float64"]).columns
-    z_scores = np.abs(stats.zscore(df[numeric_columns]))
-    df = df[(z_scores < 3).all(axis=1)]
+def handle_outliers(df):
+    numeric_cols = ["Age", "Fare"]
+
+    for col in numeric_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+
+        df[col] = np.clip(df[col], lower, upper)
 
     return df
 
 
-def save_data(df):
-    print("Step 3: Saving cleaned dataset")
-
-    # Create folder if not exists
-    os.makedirs("src/data/processed", exist_ok=True)
-
-    # Save CSV
-    df.to_csv(PROCESSED_FILE, index=False)
+def save_processed_data(df):
+    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
+    df.to_csv(OUTPUT_PATH, index=False)
+    print(f"Cleaned data saved to {OUTPUT_PATH}")
 
 def main():
     df = load_data()
-    df_cleaned = clean_data(df)
-    save_data(df_cleaned)
-    print("Data pipeline completed successfully ")
+    df = handle_missing_values(df)
+    df = remove_duplicates(df)
+    df = handle_outliers(df)
+    save_processed_data(df)
 
-# Run program
 if __name__ == "__main__":
     main()

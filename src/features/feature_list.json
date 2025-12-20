@@ -1,0 +1,38 @@
+{
+    "total_features": 15,
+    "selected_features_count": 15,
+    "all_features": [
+        "Age",
+        "Sex",
+        "Fare",
+        "FarePerPerson",
+        "MaleLowerClass",
+        "FemaleUpperClass",
+        "FamilySize",
+        "Pclass",
+        "IsLowerClass",
+        "Embarked_S",
+        "SibSp",
+        "Parch",
+        "IsChild",
+        "HighFare",
+        "IsUpperClass"
+    ],
+    "selected_features": [
+        "Age",
+        "Sex",
+        "Fare",
+        "FarePerPerson",
+        "MaleLowerClass",
+        "FemaleUpperClass",
+        "FamilySize",
+        "Pclass",
+        "IsLowerClass",
+        "Embarked_S",
+        "SibSp",
+        "Parch",
+        "IsChild",
+        "HighFare",
+        "IsUpperClass"
+    ]
+}
