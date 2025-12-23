@@ -1,0 +1,2 @@
+Age,Sex,Fare,FarePerPerson,MaleLowerClass,FemaleUpperClass,FamilySize,Pclass,IsLowerClass,Embarked_S,SibSp,Parch,IsChild,HighFare,IsUpperClass,prediction,probability,request_id,model_version,timestamp
+28,1,100,0,0,0,4,0,0,0,0,0,1,0,1,1,0.6085227188848511,cbbc2a6e-a5cf-45db-b469-643adc4ba219,v1.0,2025-12-22T18:17:02.749588
